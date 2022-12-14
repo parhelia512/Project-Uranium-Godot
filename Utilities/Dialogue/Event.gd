@@ -6,9 +6,9 @@ var pos
 var tree
 var timer
 
-func _init(pos, tree):
-	self.pos = pos
-	self.tree = tree
+func _init(_pos,_tree):
+	self.pos = _pos
+	self.tree = _tree
 	self.timer = DialogueSystem.typeTimer
 
 func on_event():

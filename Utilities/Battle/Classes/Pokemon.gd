@@ -81,41 +81,41 @@ func generate_IV():
 	iv_sp_defense = Global.rng.randi_range(0,31)
 	iv_speed = Global.rng.randi_range(0,31)
 	pass
-func exp_erratic(level : int) -> int:
+func exp_erratic(_level : int) -> int:
 	var xp : int = 0
-	if level <= 50:
-		xp = int( pow(level, 3) * (100 - level) / 50)
-	elif 50 < level && level <= 68:
-		xp = int( pow(level, 3) * (150 - level) / 100 )
-	elif 68 < level && level <= 98:
-		xp = int( pow(level, 3) * ( (1911 - 10 * level) / 3) / 500)
-	elif 98 < level && level <= 100:
-		xp = int( pow(level, 3) * (160 - level) / 100)
+	if _level <= 50:
+		xp = int( pow(_level, 3) * (100 - _level) / 50)
+	elif 50 < _level && _level <= 68:
+		xp = int( pow(_level, 3) * (150 - _level) / 100 )
+	elif 68 < _level && _level <= 98:
+		xp = int( pow(_level, 3) * ( (1911 - 10 * _level) / 3) / 500)
+	elif 98 < _level && _level <= 100:
+		xp = int( pow(_level, 3) * (160 - _level) / 100)
 	return xp
-func exp_fast(level : int) -> int:
+func exp_fast(_level : int) -> int:
 	var xp : int = 0
-	xp = int ( 4 * pow(level, 3) / 5 )
+	xp = int ( 4 * pow(_level, 3) / 5 )
 	return xp
-func exp_medium_fast(level : int) -> int:
+func exp_medium_fast(_level : int) -> int:
 	var xp : int = 0
-	xp = int( pow(level, 3 ) )
+	xp = int( pow(_level, 3 ) )
 	return xp
-func exp_medium_slow(level : int) -> int: # may need to use loop up table
+func exp_medium_slow(_level : int) -> int: # may need to use loop up table
 	var xp : int = 0
-	xp = int( (6/5) * pow(level, 3) - (15 - pow(level, 2)) + (100 * level) - 140 )
+	xp = int( (6/5) * pow(_level, 3) - (15 - pow(_level, 2)) + (100 * _level) - 140 )
 	return xp
-func exp_slow(level : int) -> int:
+func exp_slow(_level : int) -> int:
 	var xp : int = 0
-	xp = int( 5 * pow(level, 3) / 4 )
+	xp = int( 5 * pow(_level, 3) / 4 )
 	return xp
-func exp_fluctuating(level : int) -> int:
+func exp_fluctuating(_level : int) -> int:
 	var xp : int = 0
-	if level <= 15:
-		xp = int( pow(level, 3) * ( (((level + 1) / 3) + 24) / 50  ) )
-	elif 15 < level && level <= 36:
-		xp = int( pow(level, 3) * ( (level + 14) / 50))
-	elif 36 < level && level <= 100:
-		xp = int( pow(level, 3) * ( ((level / 2) + 32) / 50 ) )
+	if _level <= 15:
+		xp = int( pow(_level, 3) * ( (((_level + 1) / 3) + 24) / 50  ) )
+	elif 15 < _level && _level <= 36:
+		xp = int( pow(_level, 3) * ( (_level + 14) / 50))
+	elif 36 < _level && _level <= 100:
+		xp = int( pow(_level, 3) * ( ((_level / 2) + 32) / 50 ) )
 	return xp
 func generate_nature():
 	nature = Global.rng.randi_range(0,24)
@@ -159,137 +159,139 @@ func update_stats() -> LevelUpChanges: # Needs to be called every time a stat ch
 	current_hp += changes.hp_change
 	return changes
 
-func set_basic_pokemon_by_level(id : int, lv : int): # Sets a level n version of the pokemon by its ID and sets. Its IV values will be generated here.
-	var data = registry.new().get_pokemon_class(id)
-	ID = id
-	name = data.name
-	type1 = data.type1
-	type2 = data.type2
-	level = lv
-	weight = data.weight
-	generate_IV()
-	generate_nature() # For now random but should be determined by something else
-	generate_gender(data.male_ratio)
-	major_ailment = null
+#func set_basic_pokemon_by_level(id : int, lv : int): # Sets a level n version of the pokemon by its ID and sets. Its IV values will be generated here.
+#	var data = registry.new().get_pokemon_class(id)
+#	ID = id
+#	name = data.name
+#	type1 = data.type1
+#	type2 = data.type2
+#	level = lv
+#	weight = data.weight
+#	generate_IV()
+#	generate_nature() # For now random but should be determined by something else
+#	generate_gender(data.male_ratio)
+#	major_ailment = null
+#
+#	# Set experience points
+#	match data.leveling_rate:
+#		data.SLOW:
+#			experience = exp_slow(lv)
+#		data.MEDIUM_SLOW:
+#			experience = exp_medium_slow(lv)
+#		data.MEDIUM_FAST:
+#			experience = exp_medium_fast(lv)
+#		data.FAST:
+#			experience = exp_fast(lv)
+#		data.ERRATIC:
+#			experience = exp_erratic(lv)
+#		data.FLUCTUATING:
+#			experience = exp_fluctuating(lv)
+#
+#	# Set stats
+#	update_stats()
+#	current_hp = hp
+#	# Set move set
+#	var moveset = []
+#	for move in data.moveset:
+#		if move.level <= level:
+#			moveset.push_back(move.move)
+#	var count = moveset.size()
+#	if count > 4:
+#		count = 4
+#	for i in range(count):
+#		match i:
+#			0: 
+#				move_1 = MoveDataBase.get_move_by_name(moveset.pop_front())
+#			1: 
+#				move_2 = MoveDataBase.get_move_by_name(moveset.pop_front())
+#			2: 
+#				move_3 = MoveDataBase.get_move_by_name(moveset.pop_front())
+#			3: 
+#				move_4 = MoveDataBase.get_move_by_name(moveset.pop_front())
 
-	# Set experience points
-	match data.leveling_rate:
-		data.SLOW:
-			experience = exp_slow(lv)
-		data.MEDIUM_SLOW:
-			experience = exp_medium_slow(lv)
-		data.MEDIUM_FAST:
-			experience = exp_medium_fast(lv)
-		data.FAST:
-			experience = exp_fast(lv)
-		data.ERRATIC:
-			experience = exp_erratic(lv)
-		data.FLUCTUATING:
-			experience = exp_fluctuating(lv)
-	
-	# Set stats
-	update_stats()
-	current_hp = hp
-	# Set move set
-	var moveset = []
-	for move in data.moveset:
-		if move.level <= level:
-			moveset.push_back(move.move)
-	var count = moveset.size()
-	if count > 4:
-		count = 4
-	for i in range(count):
-		match i:
-			0: 
-				move_1 = MoveDataBase.get_move_by_name(moveset.pop_front())
-			1: 
-				move_2 = MoveDataBase.get_move_by_name(moveset.pop_front())
-			2: 
-				move_3 = MoveDataBase.get_move_by_name(moveset.pop_front())
-			3: 
-				move_4 = MoveDataBase.get_move_by_name(moveset.pop_front())
 func get_cry() -> String:
 	return "res://Audio/SE/" + str("%03d" % ID) + "Cry.wav"
-func get_battle_foe_sprite() -> Sprite:
-	var sprite = Sprite.new()
-	var tex : Texture
-	if is_shiny:
-		tex = load("res://Graphics/Battlers/" + str("%03d" % ID) + "s.png") as Texture
-	else:
-		tex = load("res://Graphics/Battlers/" + str("%03d" % ID) + ".png") as Texture
+#func get_battle_foe_sprite() -> Sprite2D:
+#	var sprite = Sprite2D.new()
+#	var tex : Texture2D
+#	if is_shiny:
+#		tex = load("res://Graphics/Battlers/" + str("%03d" % ID) + "s.png") as Texture2D
+#	else:
+#		tex = load("res://Graphics/Battlers/" + str("%03d" % ID) + ".png") as Texture2D
+#
+#	if tex == null:
+#		# Try loading with .PNG instead of .png
+#		if is_shiny:
+#			tex = load("res://Graphics/Battlers/" + str("%03d" % ID) + "s.PNG") as Texture2D
+#		else:
+#			tex = load("res://Graphics/Battlers/" + str("%03d" % ID) + ".PNG") as Texture2D
+#
+#	sprite.texture = tex
+#	if sprite.texture.get_width() != 80:
+#		var frames = sprite.texture.get_width() / 80
+#		sprite.hframes = frames
+#		var tween = Tween.new()
+#		tween.interpolate_property(sprite, "frame", 0, frames, 1.0, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
+#		tween.repeat = true
+#		tween.start()
+#
+#	sprite.name = "Sprite2D"
+#	sprite.material = ShaderMaterial.new()
+#	#var effect = load("res://Graphics/Pictures/StatUp.png")
+#	#effect.set_flags(Texture2D.FLAG_REPEAT)
+#	sprite.material.gdshader = load("res://Utilities/Battle/StatChange.gdshader")
+#	#sprite.material.set_shader_parameter("effect", effect)
+#	sprite.material.set_shader_parameter("effect_weight", 0.0)
+#	return sprite
+#func get_battle_player_sprite() -> Sprite2D:
+#	var sprite = Sprite2D.new()
+#	var tex : Texture2D
+#	if is_shiny:
+#		tex = load("res://Graphics/Battlers/" + str("%03d" % ID) + "bs.png") as Texture2D
+#	else:
+#		tex = load("res://Graphics/Battlers/" + str("%03d" % ID) + "b.png") as Texture2D
+#	sprite.texture = tex
+#	sprite.name = "Sprite2D"
+#	sprite.material = ShaderMaterial.new()
+#	#var effect = load("res://Graphics/Pictures/StatUp.png")
+#	#effect.set_flags(Texture2D.FLAG_REPEAT)
+#	sprite.material.gdshader = load("res://Utilities/Battle/StatChange.gdshader")
+#	#sprite.material.set_shader_parameter("effect", effect)
+#	sprite.material.set_shader_parameter("effect_weight", 0.0)
+#	return sprite
 
-	if tex == null:
-		# Try loading with .PNG instead of .png
-		if is_shiny:
-			tex = load("res://Graphics/Battlers/" + str("%03d" % ID) + "s.PNG") as Texture
-		else:
-			tex = load("res://Graphics/Battlers/" + str("%03d" % ID) + ".PNG") as Texture
-	
-	sprite.texture = tex
-	if sprite.texture.get_width() != 80:
-		var frames = sprite.texture.get_width() / 80
-		sprite.hframes = frames
-		var tween = Tween.new()
-		sprite.add_child(tween)
-		tween.interpolate_property(sprite, "frame", 0, frames, 1.0, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
-		tween.repeat = true
-		tween.start()
+#func get_exp_bar_percent() -> float:
+#	var result : float = 0.0
+#	var poke_class = registry.new().get_pokemon_class(ID)
+#	var base : int
+#	var top : int
+#	match poke_class.leveling_rate:
+#		poke_class.SLOW:
+#			base = exp_slow(level)
+#			top = exp_slow(level + 1)
+#		poke_class.MEDIUM_SLOW:
+#			base = exp_medium_slow(level)
+#			top = exp_medium_slow(level + 1)
+#		poke_class.MEDIUM_FAST:
+#			base = exp_medium_fast(level)
+#			top = exp_medium_fast(level + 1)
+#		poke_class.FAST:
+#			base = exp_fast(level)
+#			top = exp_fast(level + 1)
+#		poke_class.ERRATIC:
+#			base = exp_erratic(level)
+#			top = exp_erratic(level + 1)
+#		poke_class.FLUCTUATING:
+#			base = exp_fluctuating(level)
+#			top = exp_fluctuating(level + 1)
+#	var range_total = top - base
+#	var in_range = experience - base
+#	result = float(in_range) / float(range_total)
+#
+#	if result > 1.0 && result < 0.0:
+#		print("Pokemon.gd ERROR: exp bar result percentage is out of range.")
+#	return result
 
-	sprite.name = "Sprite"
-	sprite.material = ShaderMaterial.new()
-	#var effect = load("res://Graphics/Pictures/StatUp.png")
-	#effect.set_flags(Texture.FLAG_REPEAT)
-	sprite.material.shader = load("res://Utilities/Battle/StatChange.shader")
-	#sprite.material.set_shader_param("effect", effect)
-	sprite.material.set_shader_param("effect_weight", 0.0)
-	return sprite
-func get_battle_player_sprite() -> Sprite:
-	var sprite = Sprite.new()
-	var tex : Texture
-	if is_shiny:
-		tex = load("res://Graphics/Battlers/" + str("%03d" % ID) + "bs.png") as Texture
-	else:
-		tex = load("res://Graphics/Battlers/" + str("%03d" % ID) + "b.png") as Texture
-	sprite.texture = tex
-	sprite.name = "Sprite"
-	sprite.material = ShaderMaterial.new()
-	#var effect = load("res://Graphics/Pictures/StatUp.png")
-	#effect.set_flags(Texture.FLAG_REPEAT)
-	sprite.material.shader = load("res://Utilities/Battle/StatChange.shader")
-	#sprite.material.set_shader_param("effect", effect)
-	sprite.material.set_shader_param("effect_weight", 0.0)
-	return sprite
-func get_exp_bar_percent() -> float:
-	var result : float = 0.0
-	var poke_class = registry.new().get_pokemon_class(ID)
-	var base : int
-	var top : int
-	match poke_class.leveling_rate:
-		poke_class.SLOW:
-			base = exp_slow(level)
-			top = exp_slow(level + 1)
-		poke_class.MEDIUM_SLOW:
-			base = exp_medium_slow(level)
-			top = exp_medium_slow(level + 1)
-		poke_class.MEDIUM_FAST:
-			base = exp_medium_fast(level)
-			top = exp_medium_fast(level + 1)
-		poke_class.FAST:
-			base = exp_fast(level)
-			top = exp_fast(level + 1)
-		poke_class.ERRATIC:
-			base = exp_erratic(level)
-			top = exp_erratic(level + 1)
-		poke_class.FLUCTUATING:
-			base = exp_fluctuating(level)
-			top = exp_fluctuating(level + 1)
-	var range_total = top - base
-	var in_range = experience - base
-	result = float(in_range) / float(range_total)
-
-	if result > 1.0 && result < 0.0:
-		print("Pokemon.gd ERROR: exp bar result percentage is out of range.")
-	return result
 func add_ev(defeated_poke : Pokemon):
 	var poke_class = registry.new().get_pokemon_class(defeated_poke.ID)
 	if ev_hp < 255:
@@ -321,12 +323,12 @@ func add_ev(defeated_poke : Pokemon):
 	update_stats()
 func get_exp_yield() -> int:
 	return int (registry.new().get_pokemon_class(ID).exp_yield )
-func get_icon_texture() -> Texture:
-	var texture : Texture
+func get_icon_texture() -> Texture2D:
+	var texture : Texture2D
 	if is_shiny:
-		texture = load("res://Graphics/Icons/icon" + str("%03d" % ID) + "s.png") as Texture
+		texture = load("res://Graphics/Icons/icon" + str("%03d" % ID) + "s.png") as Texture2D
 	else:
-		texture = load("res://Graphics/Icons/icon" + str("%03d" % ID) + ".png") as Texture
+		texture = load("res://Graphics/Icons/icon" + str("%03d" % ID) + ".png") as Texture2D
 	return texture
 func heal(): # Restores HP and move PPs to max and removes all ailments.
 	current_hp = hp
@@ -339,37 +341,39 @@ func heal(): # Restores HP and move PPs to max and removes all ailments.
 		move_3.remaining_pp = move_3.total_pp
 	if move_4 != null:
 		move_4.remaining_pp = move_4.total_pp
-func get_level_up_times() -> int: # Returns how many levels the pokemon should level up too based on current experience. Does not apply the levels!
-	var levelUpTimes = 0
-	var lv = level
-	var data = registry.new().get_pokemon_class(ID)
+#func get_level_up_times() -> int: # Returns how many levels the pokemon should level up too based checked current experience. Does not apply the levels!
+#	var levelUpTimes = 0
+#	var lv = level
+#	var data = registry.new().get_pokemon_class(ID)
+#
+#	var leveled = false
+#	while !leveled:
+#		lv += 1
+#		if experience >= get_exp_by_level(lv):
+#			levelUpTimes += 1
+#		else:
+#			leveled = true
+#	return levelUpTimes
 
-	var leveled = false
-	while !leveled:
-		lv += 1
-		if experience >= get_exp_by_level(lv):
-			levelUpTimes += 1
-		else:
-			leveled = true
-	return levelUpTimes
-func get_exp_by_level(lv) -> int:
-	var data = registry.new().get_pokemon_class(ID)
-	var value = 0
-	match data.leveling_rate:
-			data.SLOW:
-				value = exp_slow(lv)
-			data.MEDIUM_SLOW:
-				value = exp_medium_slow(lv)
-			data.MEDIUM_FAST:
-				value = exp_medium_fast(lv)
-			data.FAST:
-				value = exp_fast(lv)
-			data.ERRATIC:
-				value = exp_erratic(lv)
-			data.FLUCTUATING:
-				value = exp_fluctuating(lv)
-	print("Exp for level," + str(lv) + "is : " + str(value))
-	return value
+#func get_exp_by_level(lv) -> int:
+#	var data = registry.new().get_pokemon_class(ID)
+#	var value = 0
+#	match data.leveling_rate:
+#			data.SLOW:
+#				value = exp_slow(lv)
+#			data.MEDIUM_SLOW:
+#				value = exp_medium_slow(lv)
+#			data.MEDIUM_FAST:
+#				value = exp_medium_fast(lv)
+#			data.FAST:
+#				value = exp_fast(lv)
+#			data.ERRATIC:
+#				value = exp_erratic(lv)
+#			data.FLUCTUATING:
+#				value = exp_fluctuating(lv)
+#	print("Exp for level," + str(lv) + "is : " + str(value))
+#	return value
+
 func get_moves():
 	var moves = []
 	if move_1 != null:

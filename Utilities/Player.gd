@@ -1,9 +1,38 @@
 extends Node2D
 
+enum STATE {
+	IDLE,
+	MOVE,
+	FISH
+}
+ 
+enum MOVEMENT_TYPE {
+	FOOT,
+	BIKE,
+	SURF,
+	SCUBA
+}
+ 
+enum MOVEMENT_SPEED {
+	NORMAL,
+	FAST
+}
+
+enum DIRECTION{
+	DOWN,
+	LEFT,
+	RIGHT,
+	UP,
+	DOWN_LEFT,
+	UP_RIGHT
+}
+
 var walkTexture = null
 var runTexture = null
 
-export var canMove = true
+var tween: Tween
+
+@export var canMove = true
 var isMoving = false
 var last_facing_dir
 var inputDisabled = false
@@ -22,7 +51,7 @@ var stair_offset = Vector2.ZERO
 
 var action
 var direction
-var movement_type = MOVEMENT_TYPE.FOOT
+var movement_type: MOVEMENT_TYPE = MOVEMENT_TYPE.FOOT
 var movement_speed
 var state
 
@@ -39,35 +68,10 @@ signal done_movement
 signal wild_battle
 signal trainer_battle(npc_trainer)
 
-enum STATE {
-	IDLE,
-	MOVE,
-	FISH
-}
- 
-enum MOVEMENT_TYPE {
-	FOOT,
-	BIKE,
-	SURF,
-	SCUBA
-}
-	   
-enum MOVEMENT_SPEED {
-	NORMAL,
-	FAST
-}
-
-enum DIRECTION{
-	DOWN,
-	LEFT,
-	RIGHT,
-	UP,
-	DOWN_LEFT,
-	UP_RIGHT
-}
 
 #Calls the load_texture method
 func _ready():
+	get_tree().create_tween()
 	self.add_to_group("auto_z_layering")
 	load_texture()
  
@@ -122,11 +126,11 @@ func get_input():
 	#If the state equals STATE.MOVE, the player is on foot and global sprint is on, then movement speed is set to fast and the texture is set to run
 	if state == STATE.MOVE and movement_type == MOVEMENT_TYPE.FOOT and Global.sprint == true:
 		movement_speed = MOVEMENT_SPEED.FAST
-		$Position2D/Sprite.texture = runTexture
+		$Marker2D/Sprite.texture = runTexture
 	#If the above is false, then movemnet speed is set to normal and the walk texture is used
 	else:
 		movement_speed = MOVEMENT_SPEED.NORMAL
-		$Position2D/Sprite.texture = walkTexture
+		$Marker2D/Sprite.texture = walkTexture
 
 
 	# Check if door is ahead
@@ -302,13 +306,19 @@ func move(force_move : bool):
 	
 	# Start Animation
 	animate()
+	tween = create_tween()
 	
 	# Set Tween settings
 	if movement_speed == MOVEMENT_SPEED.FAST:
-		$Tween.interpolate_property(self, "position", self.position, self.position + move_direction + stair_offset, 0.125, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
+		tween.tween_property(self, "position", self.position + move_direction + stair_offset, 0.125)
+		
+		#tween.interpolate_property(self, "position", self.position, self.position + move_direction + stair_offset, 0.125, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
 	else:
-		$Tween.interpolate_property(self, "position", self.position, self.position + move_direction + stair_offset, 0.25, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
-	
+		tween.tween_property(self, "position", self.position + move_direction + stair_offset, 0.25)
+		
+		#tween.interpolate_property(self, "position", self.position, self.position + move_direction + stair_offset, 0.25, Tween.TRANS_LINEAR, Tween.EASE_IN_OUT)
+	tween.set_ease(Tween.EASE_IN_OUT)
+	tween.set_trans(Tween.TRANS_LINEAR)
 	
 	
 	# Play bump effect is player can't move
@@ -319,10 +329,10 @@ func move(force_move : bool):
 	# Start Tween
 	if entering_grass || exiting_grass || Global.onGrass:
 		$GrassTween.start()
-	$Tween.start()
+	tween.play()
 
 	# Wait until player finish move
-	yield($Tween, "tween_all_completed")
+	await tween.finished
 	
 	if Global.onGrass:
 		$Grass.show()
@@ -375,30 +385,30 @@ func load_texture():
 	if Global.TrainerGender == 2:
 		walkTexture = preload("res://Graphics/Characters/HEROINE.png")
 		runTexture = preload("res://Graphics/Characters/HEROINE-RUN.png")
-	$Position2D/Sprite.texture = walkTexture
-	$Position2D/Sprite.frame = 0
+	$Marker2D/Sprite.texture = walkTexture
+	$Marker2D/Sprite.frame = 0
 	
 #Sets the sprite texture to the walkTexture and if the direction is not null then the sprite.frame is set to direction times 4
 func set_idle_frame(_dir = null):
 	state = STATE.IDLE
-	$Position2D/Sprite.texture = walkTexture
+	$Marker2D/Sprite.texture = walkTexture
 	if _dir == null: # Go with the last facing direction
 		_dir = last_facing_dir
 	match _dir:
 		"Down", DIRECTION.DOWN:
-			$Position2D/Sprite.frame = 0
+			$Marker2D/Sprite.frame = 0
 		"Up", DIRECTION.UP:
-			$Position2D/Sprite.frame = 12
+			$Marker2D/Sprite.frame = 12
 		"Left", DIRECTION.LEFT:
-			$Position2D/Sprite.frame = 4
+			$Marker2D/Sprite.frame = 4
 		"Right", DIRECTION.RIGHT:
-			$Position2D/Sprite.frame = 8
+			$Marker2D/Sprite.frame = 8
 		_:
-			$Position2D/Sprite.frame = 0
+			$Marker2D/Sprite.frame = 0
 
 func animate():
 	#If the sprite texture is the walk texture
-	if $Position2D/Sprite.texture == walkTexture:
+	if $Marker2D/Sprite.texture == walkTexture:
 		#If the above is true and foot is equal to 0, then play the animation based on the direction the player is facing
 		if foot == 0:
 			if direction == DIRECTION.DOWN:
@@ -420,7 +430,7 @@ func animate():
 			elif direction == DIRECTION.RIGHT:
 				$AnimationPlayer.play("Right2")
 	#If the sprite texture is not set to the walk texture and is set to the run texture
-	elif $Position2D/Sprite.texture == runTexture:
+	elif $Marker2D/Sprite.texture == runTexture:
 		#If the above it true and foot is equal to 0, then play the animation based on the direction the character is facing
 		if foot == 0:
 			if direction == DIRECTION.DOWN:
@@ -441,9 +451,10 @@ func animate():
 				$AnimationPlayer.play("Left_sprint2")
 			elif direction == DIRECTION.RIGHT:
 				$AnimationPlayer.play("Right_sprint2")
+
 #This method, does indeed, stop the tween
 func stop_tween():
-	$Tween.stop_all()
+	tween.stop_all()
 
 #Sets the texture to the walk texture, and if the pacing direction isn't null then set the frame to be the facing_dir * 4
 func set_facing_direction(facing_dir):
@@ -458,8 +469,8 @@ func set_facing_direction(facing_dir):
 			"Right", DIRECTION.RIGHT:
 				facing_dir = DIRECTION.RIGHT
 	direction = facing_dir
-	$Position2D/Sprite.texture = walkTexture
-	$Position2D/Sprite.frame = direction * 4
+	$Marker2D/Sprite.texture = walkTexture
+	$Marker2D/Sprite.frame = direction * 4
 
 func move_player_event(_dir, steps): # Force moves player to direction and steps
 	direction = _dir
@@ -467,7 +478,7 @@ func move_player_event(_dir, steps): # Force moves player to direction and steps
 	movement_speed = MOVEMENT_SPEED.NORMAL
 	for i in range(steps):
 		move(true)
-		yield(self, "step")
+		await self.step
 	emit_signal("done_movement")
 
 func set_grass(dir):
@@ -657,6 +668,7 @@ func wild_poke_encounter(): # Info and formula based on : https://sha.wn.zone/p/
 		canMove = false
 		set_idle_frame(direction)
 		emit_signal("wild_battle")
+
 func trainer_encounter():
 	# Check if any trainers see the player
 	if Global.game.trainers == null:
@@ -712,7 +724,7 @@ func jump():
 
 	$Tween.start()
 	$AnimationPlayer.play("Jump")
-	yield($Tween, "tween_all_completed")
+	await tween.finished
 
 	var grass_found
 	for pos in Global.grass_positions:
@@ -735,4 +747,3 @@ func jump():
 	Global.game.menu.locked = false
 	set_idle_frame()
 	set_process(true)
-	

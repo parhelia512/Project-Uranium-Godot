@@ -1,4 +1,4 @@
-extends Sprite
+extends Sprite2D
 signal free
 var index = 0
 var frames = [

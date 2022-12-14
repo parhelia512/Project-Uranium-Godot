@@ -46,7 +46,7 @@ func _ready():
 		var game_state = save.get_data("res://Game.tscn")
 
 		var current_scene = load(game_state["current_scene"])
-		var current_scene_instance = current_scene.instance()
+		var current_scene_instance = current_scene.instantiate()
 
 		$FullPanel/Load/Location.text = current_scene_instance.place_name
 		match global_state["TrainerGender"]:
@@ -196,12 +196,12 @@ func updateBoxes():
 			$FullPanel.position = Vector2(50, -160)
 		$AudioStreamPlayer.play()
 		
-#Changes loads the method newscene in the parent node if on mobile, or gets change scene from the scene tree if not on mobile
+#Changes loads the method newscene in the parent node if checked mobile, or gets change scene from the scene tree if not checked mobile
 func changeScene(scene):
 	if Global.isMobile:
 		get_parent().newScene(scene)
 	else:
-		get_tree().change_scene(scene)
+		get_tree().change_scene_to_file(scene)
 	pass
 
 #Loads the map to continue your game

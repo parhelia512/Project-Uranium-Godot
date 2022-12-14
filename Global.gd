@@ -36,7 +36,7 @@ var past_events = [] # All events that had occured
 
 var isMobile = false
 
-var load_game_from_id # Used on loading a save
+var load_game_from_id # Used checked loading a save
 
 var player_starter # 0 = Raptorch, 1 = Orchynx, 2 = Electux
 
@@ -61,11 +61,14 @@ func _ready():
 
 func _process(_delta):
 	if Input.is_action_just_pressed("toggle_fullscreen"):
-		OS.window_fullscreen = !OS.window_fullscreen
-	if Input.is_action_just_pressed("toggle_fps"):
-		printFPS = true
-	if printFPS == true:
-		print(Engine.get_frames_per_second())
+		if !OS.window_fullscreen:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		else:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+			if Input.is_action_just_pressed("toggle_fps"):
+				printFPS = true
+			if printFPS == true:
+				print(Engine.get_frames_per_second())
 	pass
 
 func save_state():
@@ -82,52 +85,55 @@ func save_state():
 		"pokedex_seen": pokedex_seen,
 		"pokedex_caught" : pokedex_caught
 	}
-	SaveSystem.set_state(filename, state)
-func load_state():
-	if SaveSystem.has_state(filename):
-		var state = SaveSystem.get_state(filename)
-		TrainerName = state["TrainerName"]
-		TrainerGender = state["TrainerGender"]
-		badges = state["badges"]
+	#SaveSystem.set_state(filename, state)
 
-		if typeof(state["time"]) == TYPE_STRING:
-			time = 0
-		if typeof(state["time"]) == TYPE_INT:
-			time = state["time"]
-			
-		can_run = state["can_run"]
-		pokemon_group = state["pokemon_group"]
-		past_events = state["past_events"]
-		pokedex_seen = state["pokedex_seen"]
+#func load_state():
+#	if SaveSystem.has_state(filename):
+#		var state = SaveSystem.get_state(filename)
+#		TrainerName = state["TrainerName"]
+#		TrainerGender = state["TrainerGender"]
+#		badges = state["badges"]
+#
+#		if typeof(state["time"]) == TYPE_STRING:
+#			time = 0
+#		if typeof(state["time"]) == TYPE_INT:
+#			time = state["time"]
+#
+#		can_run = state["can_run"]
+#		pokemon_group = state["pokemon_group"]
+#		past_events = state["past_events"]
+#		pokedex_seen = state["pokedex_seen"]
+#
+#		if state.has("pokedex_caught"):
+#			pokedex_caught = state["pokedex_caught"]
+#		elif state.has("pokedex_owned"):
+#			pokedex_caught = state["pokedex_owned"]
+#
+#		inventory = load("res://Utilities/Items/Inventory.gd").new()
+#		inventory.set_save_state(state["inventory"])
+#
+#		badges = state["badges"]
+#
+#		emit_signal("loaded")
 
-		if state.has("pokedex_caught"):
-			pokedex_caught = state["pokedex_caught"]
-		elif state.has("pokedex_owned"):
-			pokedex_caught = state["pokedex_owned"]
 
-		inventory = load("res://Utilities/Items/Inventory.gd").new()
-		inventory.set_save_state(state["inventory"])
-		
-		badges = state["badges"]
-
-		emit_signal("loaded")
 func heal_party(): # Heals all of the player's pokemon party.
 	for poke in pokemon_group:
 		poke.heal()
-func add_poke_to_party(poke : Pokemon):
-	# Add to owned dex list
-	if !pokedex_caught.has(poke.ID):
-		pokedex_caught.append(poke.ID)
-	if !pokedex_seen.has(poke.ID):
-		pokedex_seen.append(poke.ID)
-		
-	if pokemon_group.size() >= 6:
-		print("party already full")
-		# party already full
-		# TODO: Send to pc
-	else:
-		pokemon_group.append(poke)
-	pass
+#func add_poke_to_party(poke : Pokemon):
+#	# Add to owned dex list
+#	if !pokedex_caught.has(poke.ID):
+#		pokedex_caught.append(poke.ID)
+#	if !pokedex_seen.has(poke.ID):
+#		pokedex_seen.append(poke.ID)
+#
+#	if pokemon_group.size() >= 6:
+#		print("party already full")
+#		# party already full
+#		# TODO: Send to pc
+#	else:
+#		pokemon_group.append(poke)
+#	pass
 func remove_money(amount : int):
 	if money - amount < 0:
 		money = 0

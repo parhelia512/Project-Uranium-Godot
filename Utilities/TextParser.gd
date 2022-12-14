@@ -70,9 +70,9 @@ func strip_metadata(text):
 
 	return strippedText
 
-func extract_events(text, timer):
-	preload("res://Utilities/Dialogue/Events/WaitEvent.gd")
-	preload("res://Utilities/Dialogue/Events/SkipTextEvent.gd")
+func extract_events(text, _timer):
+	const WaitEvent = preload("res://Utilities/Dialogue/Events/WaitEvent.gd")
+	const SkipTextEvent = preload("res://Utilities/Dialogue/Events/SkipTextEvent.gd")
 	var event_array = []
 	var extracted_text = text
 
@@ -116,7 +116,7 @@ func extract_arg(text, index):
 	var bracket_start = text.find("[", index)
 	var bracket_end = text.find("]", bracket_start)
 	if bracket_start == -1 or bracket_end == -1:
-		push_error("Invalid command! No [] brackets found on \"" + text + "\" at reported index " + index)
+		push_error("Invalid command! No [] brackets found checked \"" + text + "\" at reported index " + index)
 		get_tree().quit()
 	else:
 		return text.substr(bracket_start + 1, bracket_end - (bracket_start + 1))

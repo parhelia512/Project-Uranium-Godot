@@ -5,10 +5,10 @@ class_name WaitEvent
 
 var time
 
-func _init(pos, tree, time).(pos, tree):
-	self.time = time
+func _init(_pos,_tree,_time):
+	self.time = _time
 
 func on_event():
 	timer.stop()
-	yield(tree.create_timer(time), "timeout")
+	await tree.create_timer(time).timeout
 	timer.start()
